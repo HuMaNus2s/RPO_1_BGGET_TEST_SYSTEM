@@ -19,6 +19,7 @@ class Category:
         self.questions_ = questions if questions is not None else []
         self.is_finished_ = is_finished
         self.is_active_ = is_active
+        self.active_question_id: int = 0
 
     @property
     def name(self):
@@ -52,16 +53,33 @@ class Category:
     def is_active(self, value: bool):
         self.is_active_ = value
 
-    def start(self):
-        pass
+    def start(self) -> Question:
+        self.active_question_id = 0
+        question = self.questions_[self.active_question_id]
+        return question
 
-    def nextQuestion(self):
-        pass
+    @property
+    def nextQuestion(self) -> Question: # Получение следующего вопрасо
+        self.active_question_id += 1
+        if (self.active_question_id <= len(self.questions_) - 1):
+            question = self.questions_[self.active_question_id]
+        else:
+            question = self.questions_[-1]
+        return question
 
-    def previousQuestion(self):
-        pass
+    @property
+    def previousQuestion(self) -> Question: # Получение предыдущего вопроса
+        self.active_question_id -= 1
+        if (self.active_question_id <= 0):
+            question = self.questions_[0]
+        elif (self.active_question_id >= 0 and self.active_question_id <= len(self.questions_) - 1):
+            question = self.questions_[self.active_question_id]
+        else: 
+            question = self.questions_[-2]
+        return question
 
     def end(self) -> int:
+        self.active_question_id = 0
         return self.points_
     
     def addQuestion(self, question):
