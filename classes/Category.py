@@ -12,11 +12,11 @@ class Category:
     is_finished_: bool
     is_active_: bool
 
-    def __init__(self, name: str = "", questions: List[Question] = [], 
+    def __init__(self, name: str = "", questions: List[Question] = None, 
                  is_finished: bool = False, is_active: bool = False, points: int = 0):
         self.name_ = name
         self.points_ = points
-        self.questions_ = questions
+        self.questions_ = questions if questions is not None else []
         self.is_finished_ = is_finished
         self.is_active_ = is_active
 
