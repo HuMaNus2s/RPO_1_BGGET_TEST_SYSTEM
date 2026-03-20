@@ -22,19 +22,19 @@ class Question:
         self.content_ = value
 
     @property # Декоратор/геттер, получение значения correct_
-    def correct(self):
+    def is_correct(self):
         return self.correct_
     
-    @correct.setter 
-    def correct(self, value: bool):
+    @is_correct.setter 
+    def is_correct(self, value: bool):
         self.correct_ = value    
     
     @property # Декоратор/геттер, получение значения is_resolved_
-    def resolved(self):
+    def is_resolved(self):
         return self.is_resolved_
     
-    @resolved.setter
-    def resolved(self, value: bool):
+    @is_resolved.setter
+    def is_resolved(self, value: bool):
         self.is_resolved_ = value
 
     @property # Декоратор/геттер, получение значения points_

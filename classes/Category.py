@@ -80,6 +80,9 @@ class Category:
 
     def end(self) -> int:
         self.active_question_id = 0
+        for question in self.questions_:
+            if question.is_resolved:
+                self.points_ += question.points
         return self.points_
     
     def addQuestion(self, question):
