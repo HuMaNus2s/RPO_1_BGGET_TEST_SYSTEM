@@ -1,0 +1,68 @@
+{
+    "name": "Общие вопросы",
+    "points": 0,
+    "is_finished": true,
+    "is_active": false,
+    "questions": [
+        {
+            "content": "Земля вращается вокруг Солнца?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Вода кипит при 100 градусах Цельсия при нормальном атмосферном давлении?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Столица России — Санкт-Петербург?",
+            "correct": false,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "У человека 206 костей в теле?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 7
+        },
+        {
+            "content": "Луна является спутником Земли?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Атомный номер водорода равен 1?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 7
+        },
+        {
+            "content": "Птицы относятся к классу млекопитающих?",
+            "correct": false,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Экватор делит Землю на Северное и Южное полушария?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Лев Толстой написал роман «Преступление и наказание»?",
+            "correct": false,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Кислород необходим для процесса горения?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 7
+        }
+    ]
+}
