@@ -1,0 +1,68 @@
+{
+    "name": "Технологии и программирование",
+    "points": 0,
+    "is_finished": true,
+    "is_active": false,
+    "questions": [
+        {
+            "content": "Язык Python является языком низкого уровня?",
+            "correct": false,
+            "is_resolved": false,
+            "points": 7
+        },
+        {
+            "content": "Оператор if используется для условных конструкций в программировании?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "HTML — это язык программирования?",
+            "correct": false,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Git — это система контроля версий?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Порт 443 используется для защищённого протокола HTTPS?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 7
+        },
+        {
+            "content": "Переменная в программировании может хранить только числовые значения?",
+            "correct": false,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "База данных может хранить структурированную информацию?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Linux — это операционная система с открытым исходным кодом?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 7
+        },
+        {
+            "content": "API позволяет разным программам взаимодействовать друг с другом?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        },
+        {
+            "content": "Компилятор преобразует исходный код в машинный код перед выполнением?",
+            "correct": true,
+            "is_resolved": false,
+            "points": 5
+        }
+    ]
+}

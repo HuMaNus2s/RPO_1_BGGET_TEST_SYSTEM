@@ -22,7 +22,14 @@
                 {% endif %}
             </nav>
         
-            <h1>Превет {{ session.username }}</h1>
+            <div class="container">
+                <h1>📚 Доступные категории</h1>
+                <div id="categories-list" class="categories-grid">
+                    <p>Загрузка категорий...</p>
+                </div>
+            </div>
+            
+                <script src="{{ url_for('static', filename='js/main.js') }}"></script>
         
             <div class="flash-container">
                 {% with messages = get_flashed_messages(with_categories=true) %}

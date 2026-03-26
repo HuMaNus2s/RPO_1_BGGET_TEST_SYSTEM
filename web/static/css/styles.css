@@ -122,3 +122,177 @@ nav {
 }
 
 /*Уведомления конец*/
+
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* === Карточки категорий === */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.category-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    border-color: #667eea;
+}
+
+.category-card.finished {
+    background: #f0fff0;
+    border-color: #4caf50;
+}
+
+.category-card h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.category-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.category-info span {
+    font-size: 14px;
+    color: #666;
+}
+
+/* === Страница вопроса === */
+.back-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+}
+
+.category-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 15px;
+    font-size: 18px;
+    color: #666;
+}
+
+.question-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.question-card h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 22px;
+}
+
+.answers {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 12px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #667eea;
+    color: white;
+}
+
+.btn:hover:not(:disabled) {
+    background: #5568d3;
+    transform: scale(1.05);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-yes {
+    background: #4caf50;
+}
+
+.btn-yes:hover:not(:disabled) {
+    background: #43a047;
+}
+
+.btn-no {
+    background: #f44336;
+}
+
+.btn-no:hover:not(:disabled) {
+    background: #e53935;
+}
+
+.btn-finish {
+    background: #ff9800;
+}
+
+.btn-finish:hover:not(:disabled) {
+    background: #fb8c00;
+}
+
+.feedback {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.feedback.correct {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.feedback.incorrect {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.navigation {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.error {
+    color: #f44336;
+    text-align: center;
+    padding: 20px;
+}
+
+

@@ -1,10 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from pathlib import Path
 import json
 import os
 
 from config.config import web
 from config.config import DATA_PATH
 from config.log_config import logger
+
+from managers.CategoryManager import CategoryManager
+
+manager = CategoryManager()
 
 app = Flask(__name__,
             template_folder='pages',
@@ -79,6 +84,145 @@ def logout():
 @admin_required
 def admin_dashboard():
     return "Админ-панель (только для role: admin)"
+
+@app.route('/category/<name>')
+def category_page(name):
+    return render_template('category.html', category_name=name)
+
+
+@app.route('/api/categories', methods=['GET'])
+def get_all_categories():
+    """Получить упрощённый список категорий для главной"""
+    try:
+        manager.load_all_categories()
+        categories = []
+        
+        for cat in manager.categories:
+            categories.append({
+                'name': cat.name,
+                'is_finished': cat.is_finished,
+                'questions_count': len(cat.questions_),
+                'points': cat.points_
+            })
+        
+        return jsonify({
+            'categories': categories,
+            'total': len(categories)
+        }), 200
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+    
+
+@app.route('/api/category/<name>', methods=['GET'])
+def get_category(name):
+    """Получить полную информацию о категории с вопросами"""
+    try:
+        # Ищем категорию по имени
+        category = None
+        for cat in manager.categories:
+            if cat.name == name:
+                category = cat
+                break
+        
+        # Если не найдена в памяти - пробуем загрузить
+        if not category:
+            temp_cat = manager.categories.__class__()
+            temp_cat = type('TempCategory', (), {'name_': name, 'loadFromFile': lambda self: None})()
+            from Category import Category
+            temp_category = Category(name=name)
+            category = temp_category.loadFromFile()
+        
+        if not category:
+            return jsonify({'error': 'Категория не найдена'}), 404
+        
+        return jsonify({
+            'name': category.name,
+            'is_finished': category.is_finished,
+            'is_active': category.is_active,
+            'points': category.points_,
+            'questions': [
+                {
+                    'id': idx,
+                    'content': q.content_,
+                    'points': q.points_,
+                    'is_resolved': q.is_resolved_
+                }
+                for idx, q in enumerate(category.questions_)
+            ],
+            'total_questions': len(category.questions_)
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/category/<name>/answer', methods=['POST'])
+def answer_question(name):
+    """Принять ответ на вопрос (Да/Нет)"""
+    try:
+        data = request.get_json()
+        question_id = data.get('question_id')
+        answer = data.get('answer')  # True/False
+        
+        # Находим категорию
+        category = None
+        for cat in manager.categories:
+            if cat.name == name:
+                category = cat
+                break
+        
+        if not category:
+            return jsonify({'error': 'Категория не найдена'}), 404
+        
+        if question_id < 0 or question_id >= len(category.questions_):
+            return jsonify({'error': 'Неверный ID вопроса'}), 400
+        
+        # Проверяем ответ
+        question = category.questions_[question_id]
+        is_correct = (answer == question.correct_)
+        
+        # Обновляем статус вопроса
+        question.is_resolved_ = True
+        
+        # Сохраняем изменения
+        category.saveInFile()
+        
+        return jsonify({
+            'correct': is_correct,
+            'points': question.points_ if is_correct else 0,
+            'message': 'Правильно!' if is_correct else 'Неправильно!'
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/category/<name>/finish', methods=['POST'])
+def finish_category(name):
+    """Завершить категорию и подсчитать баллы"""
+    try:
+        category = None
+        for cat in manager.categories:
+            if cat.name == name:
+                category = cat
+                break
+        
+        if not category:
+            return jsonify({'error': 'Категория не найдена'}), 404
+        
+        total_points = category.end()
+        category.is_finished_ = True
+        category.saveInFile()
+        
+        return jsonify({
+            'points': total_points,
+            'is_finished': True
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category_name }}</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Назад к категориям</a>
+        
+        <div id="category-info" class="category-header">
+            <h1 id="category-name">Загрузка...</h1>
+            <div class="stats">
+                <span id="question-counter">Вопрос 1 из 0</span>
+                <span id="score">Баллы: 0</span>
+            </div>
+        </div>
+
+        <div id="question-container" class="question-card">
+            <h2 id="question-text">Загрузка вопроса...</h2>
+            <div class="answers">
+                <button class="btn btn-yes" onclick="submitAnswer(true)">✅ Да</button>
+                <button class="btn btn-no" onclick="submitAnswer(false)">❌ Нет</button>
+            </div>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn" id="prev-btn" onclick="prevQuestion()" disabled>← Назад</button>
+            <button class="btn" id="next-btn" onclick="nextQuestion()">Вперёд →</button>
+            <button class="btn btn-finish" id="finish-btn" onclick="finishCategory()" style="display:none;">Завершить</button>
+        </div>
+    </div>
+
+    <script>
+        const categoryName = "{{ category_name }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/category.js') }}"></script>
+</body>
+</html>
