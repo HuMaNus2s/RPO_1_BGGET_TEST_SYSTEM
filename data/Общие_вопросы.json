@@ -1,37 +1,37 @@
 {
     "name": "Общие вопросы",
     "points": 0,
-    "is_finished": true,
+    "is_finished": false,
     "is_active": false,
     "questions": [
         {
             "content": "Земля вращается вокруг Солнца?",
             "correct": true,
-            "is_resolved": false,
+            "is_resolved": true,
             "points": 5
         },
         {
             "content": "Вода кипит при 100 градусах Цельсия при нормальном атмосферном давлении?",
             "correct": true,
-            "is_resolved": false,
+            "is_resolved": true,
             "points": 5
         },
         {
             "content": "Столица России — Санкт-Петербург?",
             "correct": false,
-            "is_resolved": false,
+            "is_resolved": true,
             "points": 5
         },
         {
             "content": "У человека 206 костей в теле?",
             "correct": true,
-            "is_resolved": false,
+            "is_resolved": true,
             "points": 7
         },
         {
             "content": "Луна является спутником Земли?",
             "correct": true,
-            "is_resolved": false,
+            "is_resolved": true,
             "points": 5
         },
         {

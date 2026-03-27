@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система тестирования</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="nav-right">
+                {% if session.username %}
+                <div>
+                    <span class="user-info">
+                        <strong>{{ session.username }}</strong>
+                    </span>
+                    <span class="points-badge">
+                        🏆 Баллы: <strong id="user-points">{{ session.points }}</strong>
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">Выйти</a>
+
+                    <div class="main-content">
+                        <h1>Доступные категории</h1>
+                        <div id="categories-list" class="categories-grid">
+                            <p>Загрузка категорий...</p>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                    <div class="main-content">
+                        <h1>Вход в систему</h1>
+                        <form method="post" action="{{ url_for('login') }}" class="login-form">
+                            <input type="text" name="username" placeholder="Имя пользователя" required>
+                            <input type="password" name="password" placeholder="Пароль" required>
+                            <button type="submit" class="btn-login">Войти</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </nav>
+
+        <script src="/static/js/main.js"></script>
+    
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message alert-{{ category|default('info') }}" role="alert">
+                            <div class="icon">
+                                {% if category == 'success' %}
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                {% elif category in ['danger', 'error'] %}
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                                {% elif category == 'warning' %}
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                                {% else %}
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                {% endif %}
+                            </div>
+                            <div class="content">{{ message }}</div>
+                            <button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</body>
+</html>
