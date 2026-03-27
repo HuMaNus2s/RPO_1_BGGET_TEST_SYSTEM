@@ -39,7 +39,6 @@ def login_required(func):
     return decorated_function
 
 def load_users():
-    """Загрузить всех пользователей из файла"""
     try:
         with open(USERS_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -52,7 +51,6 @@ def load_users():
         return []
 
 def save_users(users):
-    """Сохранить всех пользователей в файл"""
     try:
         os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
         with open(USERS_FILE, 'w', encoding='utf-8') as f:
@@ -82,7 +80,6 @@ def update_user_points(username, points_to_add):
     return None
 
 def sync_session_points(username):
-    """Синхронизировать баллы сессии с файлом"""
     user = get_user_by_username(username)
     if user:
         session['points'] = user.get('points', 0)
@@ -142,7 +139,7 @@ def logout():
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    return "Админ-панель (только для role: admin)"
+    return render_template('admin.html')
 
 @app.route('/category/<name>')
 @login_required
