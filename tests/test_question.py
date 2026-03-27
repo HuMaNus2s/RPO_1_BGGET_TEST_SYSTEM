@@ -2,8 +2,8 @@ from classes.Question import Question
 def test_question_creation(): # Проверка вопроса
     q = Question("Тест?", correct=True, is_resolved=False, points=10)
     assert q.content == "Тест?"
-    assert q.correct is True
-    assert q.resolved is False
+    assert q.is_correct is True
+    assert q.is_resolved is False
     assert q.points == 10
 
 
