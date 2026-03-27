@@ -98,13 +98,6 @@ nav {
   border-left: 5px solid #0d6efd;
 }
 
-.icon {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  opacity: 0.9;
-}
-
 .close-btn {
   margin-left: auto;
   background: none;
@@ -127,6 +120,7 @@ nav {
 h1 {
     color: #333;
     margin-bottom: 30px;
+    font-size: x-large;
     text-align: center;
 }
 
@@ -140,7 +134,8 @@ h1 {
 .category-card {
     border: 2px solid #e0e0e0;
     border-radius: 10px;
-    padding: 20px;
+    padding: 1rem;
+    padding-top: 0;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -295,4 +290,81 @@ h1 {
     padding: 20px;
 }
 
+.score-user {
+    display: flex;
+}
 
+.points-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    margin: 0 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.points-badge strong {
+    font-size: 16px;
+}
+
+#user-points {
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-logout {
+    background: #f44336;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: #e53935;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.main-content {
+    margin-top: 30px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.login-form input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn-login {
+    background: #667eea;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+    background: #5568d3;
+}

@@ -1,7 +1,7 @@
 {
     "name": "История и культура",
-    "points": 91,
-    "is_finished": true,
+    "points": 0,
+    "is_finished": false,
     "is_active": false,
     "questions": [
         {
@@ -19,7 +19,7 @@
         {
             "content": "Пирамиды в Гизе были построены древними римлянами?",
             "correct": false,
-            "is_resolved": true,
+            "is_resolved": false,
             "points": 7
         },
         {
@@ -31,37 +31,37 @@
         {
             "content": "Константинополь был столицей Византийской империи?",
             "correct": true,
-            "is_resolved": true,
+            "is_resolved": false,
             "points": 5
         },
         {
             "content": "Великая французская революция произошла в XIX веке?",
             "correct": false,
-            "is_resolved": true,
+            "is_resolved": false,
             "points": 7
         },
         {
             "content": "Бетховен является автором симфонии №9?",
             "correct": true,
-            "is_resolved": true,
+            "is_resolved": false,
             "points": 5
         },
         {
             "content": "Библия считается самой продаваемой книгой в истории?",
             "correct": true,
-            "is_resolved": true,
+            "is_resolved": false,
             "points": 7
         },
         {
             "content": "Борис Пастернак получил Нобелевскую премию по литературе в 1958 году?",
             "correct": true,
-            "is_resolved": true,
+            "is_resolved": false,
             "points": 7
         },
         {
             "content": "Эпоха Возрождения началась в Италии?",
             "correct": true,
-            "is_resolved": true,
+            "is_resolved": false,
             "points": 5
         }
     ]

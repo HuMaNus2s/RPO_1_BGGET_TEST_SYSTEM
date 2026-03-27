@@ -1,3 +1,21 @@
+function updateUserPoints(newPoints) {
+    const pointsElement = document.getElementById('user-points');
+    if (pointsElement) {
+        const oldPoints = parseInt(pointsElement.innerText);
+        pointsElement.innerText = newPoints;
+        
+        if (newPoints > oldPoints) {
+            pointsElement.style.color = '#4caf50';
+            pointsElement.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                pointsElement.style.color = '';
+                pointsElement.style.transform = '';
+            }, 500);
+        }
+    }
+    sessionData.points = newPoints;
+}
+
 async function loadCategories() {
     try {
         const response = await fetch('/api/categories');

@@ -1,7 +1,7 @@
 {
     "name": "Технологии и программирование",
     "points": 0,
-    "is_finished": true,
+    "is_finished": false,
     "is_active": false,
     "questions": [
         {

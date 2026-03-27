@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from pathlib import Path
 import json
 import os
+from functools import wraps
 
 from config.config import web
 from config.config import DATA_PATH
@@ -19,8 +20,6 @@ app.secret_key = web.SECRET_KEY
 
 USERS_FILE = os.path.join(DATA_PATH, 'users', 'users.json')
 
-from functools import wraps
-
 def admin_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
@@ -30,10 +29,71 @@ def admin_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
+def login_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not session.get('username'):
+            flash("Пожалуйста, войдите в систему", "warning")
+            return redirect(url_for('index'))
+        return func(*args, **kwargs)
+    return decorated_function
+
+def load_users():
+    """Загрузить всех пользователей из файла"""
+    try:
+        with open(USERS_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('users', [])
+    except FileNotFoundError:
+        logger.error("Файл пользователей не найден")
+        return []
+    except json.JSONDecodeError:
+        logger.error("Файл пользователей повреждён")
+        return []
+
+def save_users(users):
+    """Сохранить всех пользователей в файл"""
+    try:
+        os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
+        with open(USERS_FILE, 'w', encoding='utf-8') as f:
+            json.dump({'users': users}, f, ensure_ascii=False, indent=4)
+        return True
+    except Exception as e:
+        logger.error(f"Ошибка сохранения пользователей: {e}")
+        return False
+
+def get_user_by_username(username):
+    """Найти пользователя по имени"""
+    users = load_users()
+    for user in users:
+        if user.get('username', '').lower() == username.lower():
+            return user
+    return None
+
+def update_user_points(username, points_to_add):
+    """Обновить баллы пользователя в файле"""
+    users = load_users()
+    for user in users:
+        if user.get('username', '').lower() == username.lower():
+            current_points = user.get('points', 0)
+            user['points'] = current_points + points_to_add
+            save_users(users)
+            return user['points']
+    return None
+
+def sync_session_points(username):
+    """Синхронизировать баллы сессии с файлом"""
+    user = get_user_by_username(username)
+    if user:
+        session['points'] = user.get('points', 0)
+        return session['points']
+    return 0
+
 @app.route('/')
 def index():
+    if session.get('username'):
+        sync_session_points(session['username'])
     return render_template('index.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -46,16 +106,14 @@ def login():
             return render_template('index.html')
 
         try:
-            with open(USERS_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-
-            users = data.get("users", [])
+            users = load_users()
 
             for user in users:
                 if user.get("username", "").lower() == username:
                     if user.get("password") == password:
                         session['username'] = user["username"]
                         session['role'] = user.get("role", "user")
+                        session['points'] = user.get('points', 0)  # Загружаем баллы из файла
                         flash(f"Добро пожаловать, {user['username']}!", "success")
                         return redirect(url_for('index'))
                     else:
@@ -73,10 +131,11 @@ def login():
 
     return render_template('index.html')
 
-
 @app.route('/logout')
 def logout():
     session.pop('username', None)
+    session.pop('points', None)
+    session.pop('role', None)
     flash('До встречи!', 'info')
     return redirect(url_for('index'))
 
@@ -86,13 +145,21 @@ def admin_dashboard():
     return "Админ-панель (только для role: admin)"
 
 @app.route('/category/<name>')
+@login_required
 def category_page(name):
     return render_template('category.html', category_name=name)
 
+@app.route('/api/user/points', methods=['GET'])
+@login_required
+def get_user_points():
+    """Получить текущие баллы пользователя"""
+    username = session['username']
+    points = sync_session_points(username)
+    return jsonify({'points': points, 'username': username}), 200
 
 @app.route('/api/categories', methods=['GET'])
+@login_required
 def get_all_categories():
-    """Получить упрощённый список категорий для главной"""
     try:
         manager.load_all_categories()
         categories = []
@@ -112,29 +179,28 @@ def get_all_categories():
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         return jsonify({'error': str(e)}), 500
-    
 
 @app.route('/api/category/<name>', methods=['GET'])
+@login_required
 def get_category(name):
     """Получить полную информацию о категории с вопросами"""
     try:
-        # Ищем категорию по имени
         category = None
         for cat in manager.categories:
             if cat.name == name:
                 category = cat
                 break
-        
-        # Если не найдена в памяти - пробуем загрузить
+
         if not category:
-            temp_cat = manager.categories.__class__()
-            temp_cat = type('TempCategory', (), {'name_': name, 'loadFromFile': lambda self: None})()
-            from Category import Category
+            from classes.Category import Category
             temp_category = Category(name=name)
             category = temp_category.loadFromFile()
         
         if not category:
             return jsonify({'error': 'Категория не найдена'}), 404
+
+        for q in category.questions_:
+            q.is_resolved_ = False
         
         return jsonify({
             'name': category.name,
@@ -156,16 +222,16 @@ def get_category(name):
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         return jsonify({'error': str(e)}), 500
-    
+
 @app.route('/api/category/<name>/answer', methods=['POST'])
+@login_required
 def answer_question(name):
     """Принять ответ на вопрос (Да/Нет)"""
     try:
         data = request.get_json()
         question_id = data.get('question_id')
-        answer = data.get('answer')  # True/False
-        
-        # Находим категорию
+        answer = data.get('answer')
+
         category = None
         for cat in manager.categories:
             if cat.name == name:
@@ -178,27 +244,64 @@ def answer_question(name):
         if question_id < 0 or question_id >= len(category.questions_):
             return jsonify({'error': 'Неверный ID вопроса'}), 400
         
-        # Проверяем ответ
         question = category.questions_[question_id]
+        
+        # ✅ ПРОВЕРЯЕМ, НЕ БЫЛ ЛИ УЖЕ ОТВЕЧЕН ВОПРОС
+        if question.is_resolved_:
+            return jsonify({'error': 'На этот вопрос уже был дан ответ'}), 400
+        
         is_correct = (answer == question.correct_)
-        
-        # Обновляем статус вопроса
         question.is_resolved_ = True
-        
-        # Сохраняем изменения
         category.saveInFile()
+        
+        points_earned = question.points_ if is_correct else 0
+        
+        # ✅ НАЧИСЛЯЕМ БАЛЛЫ ПОЛЬЗОВАТЕЛЮ ТОЛЬКО ПРИ ОТВЕТЕ
+        if is_correct and points_earned > 0:
+            username = session['username']
+            new_total = update_user_points(username, points_earned)
+            session['points'] = new_total
         
         return jsonify({
             'correct': is_correct,
-            'points': question.points_ if is_correct else 0,
-            'message': 'Правильно!' if is_correct else 'Неправильно!'
+            'points': points_earned,
+            'message': 'Правильно!' if is_correct else 'Неправильно!',
+            'user_points': session['points']
         }), 200
         
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         return jsonify({'error': str(e)}), 500
     
+@app.route('/api/category/<name>/start', methods=['POST'])
+@login_required
+def start_category(name):
+    try:
+        category = None
+        for cat in manager.categories:
+            if cat.name == name:
+                category = cat
+                break
+        
+        if not category:
+            return jsonify({'error': 'Категория не найдена'}), 404
+        
+        category.reset_questions()
+
+        session.pop(f'answered_{name}', None)
+        session.pop(f'category_points_{name}', None)
+        
+        return jsonify({
+            'message': 'Категория начата заново',
+            'questions_count': len(category.questions_)
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/category/<name>/finish', methods=['POST'])
+@login_required
 def finish_category(name):
     """Завершить категорию и подсчитать баллы"""
     try:
@@ -211,19 +314,41 @@ def finish_category(name):
         if not category:
             return jsonify({'error': 'Категория не найдена'}), 404
         
-        total_points = category.end()
+        # ✅ ПОДСЧИТЫВАЕМ БАЛЛЫ КАТЕГОРИИ (не начисляем пользователю повторно!)
+        category_points = 0
+        answered_count = 0
+        correct_count = 0
+        
+        for q in category.questions_:
+            if q.is_resolved_:
+                answered_count += 1
+                if q.is_resolved_ and q.correct_:  # Если вопрос решён и правильный
+                    category_points += q.points_
+                    correct_count += 1
+        
         category.is_finished_ = True
+        category.points_ = category_points  # Сохраняем баллы категории
         category.saveInFile()
         
+        # ✅ НЕ НАЧИСЛЯЕМ БАЛЛЫ ПОЛЬЗОВАТЕЛЮ ЗДЕСЬ (они уже начислены при ответах)
+        
         return jsonify({
-            'points': total_points,
-            'is_finished': True
+            'category_points': category_points,
+            'answered_count': answered_count,
+            'correct_count': correct_count,
+            'total_questions': len(category.questions_),
+            'is_finished': True,
+            'user_points': session['points']  # Текущие баллы пользователя
         }), 200
         
     except Exception as e:
         logger.error(f"Ошибка: {e}")
         return jsonify({'error': str(e)}), 500
-
+        
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    manager.load_all_categories()
     app.run(debug=True)

@@ -55,6 +55,7 @@ class Category:
 
     def start(self) -> Question:
         self.active_question_id = 0
+        self.points_ = 0
         question = self.questions_[self.active_question_id]
         return question
 
@@ -80,10 +81,16 @@ class Category:
 
     def end(self) -> int:
         self.active_question_id = 0
+        self.is_finished_ = True
+        return 0
+    
+    def reset_questions(self):
         for question in self.questions_:
-            if question.is_resolved:
-                self.points_ += question.points
-        return self.points_
+            question.is_resolved_ = False
+        self.is_finished_ = False
+        self.points_ = 0
+        self.active_question_id = 0
+        self.saveInFile()
     
     def addQuestion(self, question):
         self.questions_.append(question)

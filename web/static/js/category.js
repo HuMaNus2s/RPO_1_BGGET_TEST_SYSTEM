@@ -1,7 +1,6 @@
 let questions = [];
 let currentQuestionIndex = 0;
 let score = 0;
-let answers = {}; // Храним ответы пользователя
 
 async function loadCategory() {
     try {
@@ -44,7 +43,6 @@ function showQuestion(index) {
     document.getElementById('question-counter').innerText = 
         `Вопрос ${index + 1} из ${questions.length}`;
     
-    // Обновляем кнопки навигации
     document.getElementById('prev-btn').disabled = (index === 0);
     
     if (index === questions.length - 1) {
@@ -55,7 +53,6 @@ function showQuestion(index) {
         document.getElementById('finish-btn').style.display = 'none';
     }
     
-    // Очищаем обратную связь
     document.getElementById('feedback').innerText = '';
     document.getElementById('feedback').className = 'feedback';
 }
@@ -66,9 +63,7 @@ async function submitAnswer(answer) {
     try {
         const response = await fetch(`/api/category/${encodeURIComponent(categoryName)}/answer`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 question_id: currentQuestionIndex,
                 answer: answer
@@ -77,29 +72,27 @@ async function submitAnswer(answer) {
         
         const data = await response.json();
         
-        // Показываем результат
         const feedback = document.getElementById('feedback');
         feedback.innerText = data.message + ` (+${data.points} баллов)`;
         feedback.className = `feedback ${data.correct ? 'correct' : 'incorrect'}`;
         
-        // Сохраняем ответ
-        answers[currentQuestionIndex] = {
-            answer: answer,
-            correct: data.correct,
-            points: data.points
-        };
-        
-        // Обновляем счёт
         if (data.correct) {
             score += data.points;
             document.getElementById('score').innerText = `Баллы: ${score}`;
+
+            if (data.user_points !== undefined) {
+                updateUserPoints(data.user_points);
+            }
+
+            if (data.category_points !== undefined) {
+                document.getElementById('category-score').innerText = 
+                    `В категории: ${data.category_points}`;
+            }
         }
         
-        // Блокируем кнопки после ответа
         document.querySelector('.btn-yes').disabled = true;
         document.querySelector('.btn-no').disabled = true;
         
-        // Автоматический переход через 1 секунду
         setTimeout(() => {
             if (currentQuestionIndex < questions.length - 1) {
                 nextQuestion();
@@ -135,13 +128,42 @@ async function finishCategory() {
         });
         
         const data = await response.json();
+
+        if (data.user_points !== undefined) {
+            updateUserPoints(data.user_points);
+        }
+
+        const categoryPts = data.category_points || 0;
+        const userPts = data.user_points || 0;
         
-        alert(`Категория завершена!\nВаш счёт: ${data.points} баллов`);
+        alert(
+            `Категория завершена!\n\n` +
+            `Баллов в этой категории: ${categoryPts}\n` +
+            `Всего баллов: ${userPts}`
+        );
+        
         window.location.href = '/';
         
     } catch (error) {
         console.error('Ошибка:', error);
         alert('Ошибка завершения категории');
+    }
+}
+
+function updateUserPoints(newPoints) {
+    const pointsElement = document.getElementById('user-points');
+    if (pointsElement) {
+        const oldPoints = parseInt(pointsElement.innerText);
+        pointsElement.innerText = newPoints;
+        
+        if (newPoints > oldPoints) {
+            pointsElement.style.color = '#4caf50';
+            pointsElement.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                pointsElement.style.color = '';
+                pointsElement.style.transform = '';
+            }, 500);
+        }
     }
 }
 
