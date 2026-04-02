@@ -60,24 +60,22 @@ class Category:
         return question
 
     @property
-    def nextQuestion(self) -> Question: # Получение следующего вопрасо
+    def nextQuestion(self) -> Question:
+        if not self.questions_:
+            return None
         self.active_question_id += 1
-        if (self.active_question_id <= len(self.questions_) - 1):
-            question = self.questions_[self.active_question_id]
-        else:
-            question = self.questions_[-1]
-        return question
+        if self.active_question_id >= len(self.questions_):
+            self.active_question_id = len(self.questions_) - 1
+        return self.questions_[self.active_question_id]
 
     @property
-    def previousQuestion(self) -> Question: # Получение предыдущего вопроса
+    def previousQuestion(self) -> Question:
+        if not self.questions_:
+            return None
         self.active_question_id -= 1
-        if (self.active_question_id <= 0):
-            question = self.questions_[0]
-        elif (self.active_question_id >= 0 and self.active_question_id <= len(self.questions_) - 1):
-            question = self.questions_[self.active_question_id]
-        else: 
-            question = self.questions_[-2]
-        return question
+        if self.active_question_id < 0:
+            self.active_question_id = 0
+        return self.questions_[self.active_question_id]
 
     def end(self) -> int:
         self.active_question_id = 0
@@ -87,6 +85,7 @@ class Category:
     def reset_questions(self):
         for question in self.questions_:
             question.is_resolved_ = False
+            question.user_correct_ = False
         self.is_finished_ = False
         self.points_ = 0
         self.active_question_id = 0
@@ -114,7 +113,8 @@ class Category:
                     content=q_data.get('content', ''),
                     correct=q_data.get('correct', False),
                     is_resolved=q_data.get('is_resolved', False),
-                    points=q_data.get('points', 0)
+                    points=q_data.get('points', 0),
+                    user_correct=q_data.get('user_correct', False)
                 )
                 questions.append(question)
             

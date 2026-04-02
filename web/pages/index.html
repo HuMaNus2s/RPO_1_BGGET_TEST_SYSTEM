@@ -11,34 +11,37 @@
         <nav class="navbar">
             <div class="nav-right">
                 {% if session.username %}
-                <div>
                     <span class="user-info">
                         <strong>{{ session.username }}</strong>
                     </span>
                     <span class="points-badge">
                         🏆 Баллы: <strong id="user-points">{{ session.points }}</strong>
                     </span>
+                    {% if session.role == "admin" %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn-admin">Панель</a>
+                    {% endif %}
                     <a href="{{ url_for('logout') }}" class="btn-logout">Выйти</a>
-
-                    <div class="main-content">
-                        <h1>Доступные категории</h1>
-                        <div id="categories-list" class="categories-grid">
-                            <p>Загрузка категорий...</p>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                    <div class="main-content">
-                        <h1>Вход в систему</h1>
-                        <form method="post" action="{{ url_for('login') }}" class="login-form">
-                            <input type="text" name="username" placeholder="Имя пользователя" required>
-                            <input type="password" name="password" placeholder="Пароль" required>
-                            <button type="submit" class="btn-login">Войти</button>
-                        </form>
-                    </div>
                 {% endif %}
             </div>
         </nav>
+
+        {% if session.username %}
+            <div class="main-content">
+                <h1>Доступные категории</h1>
+                <div id="categories-list" class="categories-grid">
+                    <p>Загрузка категорий...</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="main-content">
+                <h1>Вход в систему</h1>
+                <form method="post" action="{{ url_for('login') }}" class="login-form">
+                    <input type="text" name="username" placeholder="Имя пользователя" required>
+                    <input type="password" name="password" placeholder="Пароль" required>
+                    <button type="submit" class="btn-login">Войти</button>
+                </form>
+            </div>
+        {% endif %}
 
         <script src="/static/js/main.js"></script>
     

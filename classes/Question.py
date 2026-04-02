@@ -5,13 +5,15 @@ class Question:
     correct_: bool
     is_resolved_: bool
     points_: int
+    user_correct_: bool
     
     def __init__(self, content: str = "", correct: bool = False, 
-                 is_resolved: bool = False, points: int = 0):
+                 is_resolved: bool = False, points: int = 0, user_correct: bool = False):
         self.content_ = content
         self.correct_ = correct
         self.is_resolved_ = is_resolved
         self.points_ = points
+        self.user_correct_ = user_correct
     
     @property # Декоратор/геттер, получение значения content_
     def content(self):
@@ -51,5 +53,6 @@ class Question:
             "content": self.content_, 
             "correct": self.correct_,
             "is_resolved": self.is_resolved_,
-            "points": self.points_
+            "points": self.points_,
+            "user_correct": self.user_correct_
         }

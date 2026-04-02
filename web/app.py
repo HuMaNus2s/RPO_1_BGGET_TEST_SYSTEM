@@ -141,6 +141,210 @@ def logout():
 def admin_dashboard():
     return render_template('admin.html')
 
+@app.route('/api/admin/categories', methods=['GET'])
+@admin_required
+def admin_get_categories():
+    """Получить все категории для админа"""
+    try:
+        manager.load_all_categories()
+        categories = []
+        
+        for cat in manager.categories:
+            categories.append({
+                'name': cat.name,
+                'is_finished': cat.is_finished,
+                'is_active': cat.is_active,
+                'questions_count': len(cat.questions_),
+                'points': cat.points_
+            })
+        
+        return jsonify({
+            'categories': categories,
+            'total': len(categories)
+        }), 200
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/category', methods=['POST'])
+@admin_required
+def admin_create_category():
+    """Создать новую категорию"""
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        
+        if not name:
+            return jsonify({'error': 'Название категории обязательно'}), 400
+        
+        from classes.Category import Category
+        new_category = Category(name=name)
+        
+        if new_category.saveInFile():
+            manager.load_all_categories()
+            return jsonify({
+                'message': 'Категория создана',
+                'category': {
+                    'name': new_category.name,
+                    'is_finished': new_category.is_finished,
+                    'is_active': new_category.is_active,
+                    'questions_count': len(new_category.questions_),
+                    'points': new_category.points_
+                }
+            }), 201
+        else:
+            return jsonify({'error': 'Ошибка сохранения категории'}), 500
+            
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/category/<name>', methods=['PUT'])
+@admin_required
+def admin_update_category(name):
+    """Обновить категорию"""
+    try:
+        data = request.get_json()
+        new_name = data.get('name', '').strip()
+        
+        if not new_name:
+            return jsonify({'error': 'Название категории обязательно'}), 400
+        
+        logger.info(f"Ищем категорию '{name}' в manager.categories: {[c.name for c in manager.categories]}")
+        
+        category = None
+        for cat in manager.categories:
+            if cat.name == name:
+                category = cat
+                break
+        
+        if not category:
+            return jsonify({'error': 'Категория не найдена'}), 404
+        
+        old_filename = name.replace(' ', '_')
+        new_filename = new_name.replace(' ', '_')
+        
+        import os
+        old_path = os.path.join(DATA_PATH, f'{old_filename}.json')
+        new_path = os.path.join(DATA_PATH, f'{new_filename}.json')
+        
+        if old_filename != new_filename and os.path.exists(old_path):
+            os.remove(old_path)
+        
+        category.name_ = new_name
+        category.saveInFile()
+        manager.load_all_categories()
+        
+        return jsonify({
+            'message': 'Категория обновлена',
+            'category': {
+                'name': category.name,
+                'is_finished': category.is_finished,
+                'is_active': category.is_active,
+                'questions_count': len(category.questions_),
+                'points': category.points_
+            }
+        }), 200
+            
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/category/<name>', methods=['DELETE'])
+@admin_required
+def admin_delete_category(name):
+    """Удалить категорию"""
+    try:
+        import os
+        filename = name.replace(' ', '_')
+        filepath = os.path.join(DATA_PATH, f'{filename}.json')
+        
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            manager.load_all_categories()
+            return jsonify({'message': 'Категория удалена'}), 200
+        else:
+            return jsonify({'error': 'Категория не найдена'}), 404
+            
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/category/<name>/questions', methods=['POST'])
+@admin_required
+def admin_add_question(name):
+    """Добавить вопрос в категорию"""
+    try:
+        data = request.get_json()
+        content = data.get('content', '').strip()
+        correct = data.get('correct', False)
+        points = data.get('points', 5)
+        
+        if not content:
+            return jsonify({'error': 'Текст вопроса обязателен'}), 400
+        
+        category = None
+        for cat in manager.categories:
+            if cat.name == name:
+                category = cat
+                break
+        
+        if not category:
+            from classes.Category import Category
+            temp_category = Category(name=name)
+            category = temp_category.loadFromFile()
+        
+        if not category:
+            return jsonify({'error': 'Категория не найдена'}), 404
+        
+        from classes.Question import Question
+        new_question = Question(content=content, correct=correct, points=points)
+        category.addQuestion(new_question)
+        category.saveInFile()
+        manager.load_all_categories()
+        
+        return jsonify({
+            'message': 'Вопрос добавлен',
+            'question': {
+                'id': len(category.questions_) - 1,
+                'content': new_question.content_,
+                'correct': new_question.correct_,
+                'points': new_question.points_,
+                'is_resolved': new_question.is_resolved_
+            }
+        }), 201
+            
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/category/<name>/questions/<int:question_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_question(name, question_id):
+    """Удалить вопрос из категории"""
+    try:
+        category = None
+        for cat in manager.categories:
+            if cat.name == name:
+                category = cat
+                break
+        
+        if not category:
+            return jsonify({'error': 'Категория не найдена'}), 404
+        
+        if question_id < 0 or question_id >= len(category.questions_):
+            return jsonify({'error': 'Неверный ID вопроса'}), 400
+        
+        category.removeQuestion(question_id)
+        category.saveInFile()
+        manager.load_all_categories()
+        
+        return jsonify({'message': 'Вопрос удален'}), 200
+            
+    except Exception as e:
+        logger.error(f"Ошибка: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/category/<name>')
 @login_required
 def category_page(name):
@@ -182,6 +386,7 @@ def get_all_categories():
 def get_category(name):
     """Получить полную информацию о категории с вопросами"""
     try:
+        manager.load_all_categories()
         category = None
         for cat in manager.categories:
             if cat.name == name:
@@ -195,9 +400,6 @@ def get_category(name):
         
         if not category:
             return jsonify({'error': 'Категория не найдена'}), 404
-
-        for q in category.questions_:
-            q.is_resolved_ = False
         
         return jsonify({
             'name': category.name,
@@ -208,6 +410,7 @@ def get_category(name):
                 {
                     'id': idx,
                     'content': q.content_,
+                    'correct': q.correct_,
                     'points': q.points_,
                     'is_resolved': q.is_resolved_
                 }
@@ -229,6 +432,7 @@ def answer_question(name):
         question_id = data.get('question_id')
         answer = data.get('answer')
 
+        manager.load_all_categories()
         category = None
         for cat in manager.categories:
             if cat.name == name:
@@ -248,7 +452,9 @@ def answer_question(name):
             return jsonify({'error': 'На этот вопрос уже был дан ответ'}), 400
         
         is_correct = (answer == question.correct_)
+        logger.info(f"Ответ: {answer}, Правильный: {question.correct_}, Результат: {is_correct}")
         question.is_resolved_ = True
+        question.user_correct_ = is_correct
         category.saveInFile()
         
         points_earned = question.points_ if is_correct else 0
@@ -274,6 +480,7 @@ def answer_question(name):
 @login_required
 def start_category(name):
     try:
+        manager.load_all_categories()
         category = None
         for cat in manager.categories:
             if cat.name == name:
@@ -302,6 +509,7 @@ def start_category(name):
 def finish_category(name):
     """Завершить категорию и подсчитать баллы"""
     try:
+        manager.load_all_categories()
         category = None
         for cat in manager.categories:
             if cat.name == name:
@@ -319,15 +527,13 @@ def finish_category(name):
         for q in category.questions_:
             if q.is_resolved_:
                 answered_count += 1
-                if q.is_resolved_ and q.correct_:  # Если вопрос решён и правильный
+                if q.user_correct_:
                     category_points += q.points_
                     correct_count += 1
         
         category.is_finished_ = True
-        category.points_ = category_points  # Сохраняем баллы категории
+        category.points_ = category_points
         category.saveInFile()
-        
-        # ✅ НЕ НАЧИСЛЯЕМ БАЛЛЫ ПОЛЬЗОВАТЕЛЮ ЗДЕСЬ (они уже начислены при ответах)
         
         return jsonify({
             'category_points': category_points,
@@ -335,12 +541,8 @@ def finish_category(name):
             'correct_count': correct_count,
             'total_questions': len(category.questions_),
             'is_finished': True,
-            'user_points': session['points']  # Текущие баллы пользователя
+            'user_points': session['points']
         }), 200
-        
-    except Exception as e:
-        logger.error(f"Ошибка: {e}")
-        return jsonify({'error': str(e)}), 500
         
     except Exception as e:
         logger.error(f"Ошибка: {e}")

@@ -7,62 +7,72 @@
         {
             "content": "Земля вращается вокруг Солнца?",
             "correct": true,
-            "is_resolved": true,
-            "points": 5
+            "is_resolved": false,
+            "points": 5,
+            "user_correct": false
         },
         {
             "content": "Вода кипит при 100 градусах Цельсия при нормальном атмосферном давлении?",
             "correct": true,
-            "is_resolved": true,
-            "points": 5
+            "is_resolved": false,
+            "points": 5,
+            "user_correct": false
         },
         {
             "content": "Столица России — Санкт-Петербург?",
             "correct": false,
-            "is_resolved": true,
-            "points": 5
+            "is_resolved": false,
+            "points": 5,
+            "user_correct": false
         },
         {
             "content": "У человека 206 костей в теле?",
             "correct": true,
-            "is_resolved": true,
-            "points": 7
+            "is_resolved": false,
+            "points": 7,
+            "user_correct": false
         },
         {
             "content": "Луна является спутником Земли?",
             "correct": true,
-            "is_resolved": true,
-            "points": 5
+            "is_resolved": false,
+            "points": 5,
+            "user_correct": false
         },
         {
             "content": "Атомный номер водорода равен 1?",
             "correct": true,
             "is_resolved": false,
-            "points": 7
+            "points": 7,
+            "user_correct": false
         },
         {
             "content": "Птицы относятся к классу млекопитающих?",
             "correct": false,
             "is_resolved": false,
-            "points": 5
+            "points": 5,
+            "user_correct": false
         },
         {
             "content": "Экватор делит Землю на Северное и Южное полушария?",
             "correct": true,
             "is_resolved": false,
-            "points": 5
+            "points": 5,
+            "user_correct": false
         },
         {
             "content": "Лев Толстой написал роман «Преступление и наказание»?",
             "correct": false,
             "is_resolved": false,
-            "points": 5
+            "points": 5,
+            "user_correct": false
         },
         {
             "content": "Кислород необходим для процесса горения?",
             "correct": true,
             "is_resolved": false,
-            "points": 7
+            "points": 7,
+            "user_correct": false
         }
     ]
 }

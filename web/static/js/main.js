@@ -13,7 +13,6 @@ function updateUserPoints(newPoints) {
             }, 500);
         }
     }
-    sessionData.points = newPoints;
 }
 
 async function loadCategories() {
@@ -85,7 +84,7 @@ async function loadCategoriesAdmin() {
         
     } catch (error) {
         console.error('Ошибка:', error);
-        document.getElementById('categories-list').innerHTML = 
+        document.getElementById('categories-list-admin').innerHTML = 
             '<p class="error">Ошибка загрузки категорий</p>';
     }
 }
@@ -94,4 +93,7 @@ function selectCategory(name) {
     window.location.href = `/category/${encodeURIComponent(name)}`;
 }
 
-document.addEventListener('DOMContentLoaded', loadCategories, loadCategoriesAdmin);
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+    loadCategoriesAdmin();
+});

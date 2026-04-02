@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система тестирования</title>
+    <title>Админ-панель - Система тестирования</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
@@ -11,53 +11,98 @@
         <nav class="navbar">
             <div class="nav-right">
                 {% if session.username %}
-                <div>
                     <span class="user-info">
-                        <strong>{{ session.username }}</strong>
+                        <strong>{{ session.username }}</strong> (Админ)
                     </span>
                     <span class="points-badge">
                         🏆 Баллы: <strong id="user-points">{{ session.points }}</strong>
                     </span>
+                    <a href="{{ url_for('index') }}" class="btn-logout">На главную</a>
                     <a href="{{ url_for('logout') }}" class="btn-logout">Выйти</a>
-
-                    <div class="main-content">
-                        <h1>Категории</h1>
-                        <div id="categories-list-admin" class="categories-grid">
-                            <p>Загрузка категорий...</p>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                    <div class="main-content">
-                        <h1>Вход в систему</h1>
-                        <form method="post" action="{{ url_for('login') }}" class="login-form">
-                            <input type="text" name="username" placeholder="Имя пользователя" required>
-                            <input type="password" name="password" placeholder="Пароль" required>
-                            <button type="submit" class="btn-login">Войти</button>
-                        </form>
-                    </div>
                 {% endif %}
             </div>
         </nav>
 
-        <script src="/static/js/main.js"></script>
+        {% if session.username and session.role == 'admin' %}
+            <div class="main-content">
+                <h1>Управление категориями</h1>
+                
+                <div class="admin-actions">
+                    <button class="btn btn-primary" onclick="showCreateCategoryModal()">+ Создать категорию</button>
+                </div>
+
+                <div id="categories-admin-list" class="categories-grid">
+                    <p>Загрузка категорий...</p>
+                </div>
+            </div>
+
+            <div id="modal-overlay" class="modal-overlay" style="display:none;">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2 id="modal-title">Создать категорию</h2>
+                        <button class="modal-close" onclick="closeModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="category-form" onsubmit="saveCategory(event)">
+                            <input type="hidden" id="category-original-name">
+                            <div class="form-group">
+                                <label for="category-name">Название категории:</label>
+                                <input type="text" id="category-name" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                                <button type="button" class="btn" onclick="closeModal()">Отмена</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="question-modal-overlay" class="modal-overlay" style="display:none;">
+                <div class="modal modal-large">
+                    <div class="modal-header">
+                        <h2 id="question-modal-title">Управление вопросами</h2>
+                        <button class="modal-close" onclick="closeQuestionModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="questions-list" class="questions-admin-list"></div>
+                        
+                        <h3>Добавить вопрос</h3>
+                        <form id="question-form" onsubmit="addQuestion(event)">
+                            <input type="hidden" id="question-category-name">
+                            <div class="form-group">
+                                <label for="question-content">Текст вопроса:</label>
+                                <textarea id="question-content" required rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="question-correct"> Правильный ответ: Да
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="question-points">Баллы:</label>
+                                <input type="number" id="question-points" value="5" min="1" max="100">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Добавить вопрос</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="main-content">
+                <h1>Доступ запрещен</h1>
+                <p>У вас нет прав администратора.</p>
+                <a href="{{ url_for('index') }}" class="btn">На главную</a>
+            </div>
+        {% endif %}
+
+        <script src="/static/js/admin.js"></script>
     
         <div class="flash-container">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
                         <div class="flash-message alert-{{ category|default('info') }}" role="alert">
-                            <div class="icon">
-                                {% if category == 'success' %}
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                                {% elif category in ['danger', 'error'] %}
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                                {% elif category == 'warning' %}
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-                                {% else %}
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                                {% endif %}
-                            </div>
                             <div class="content">{{ message }}</div>
                             <button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>
                         </div>

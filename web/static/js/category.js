@@ -55,6 +55,21 @@ function showQuestion(index) {
     
     document.getElementById('feedback').innerText = '';
     document.getElementById('feedback').className = 'feedback';
+    
+    document.getElementById('restart-btn').style.display = 'inline-block';
+    
+    const yesBtn = document.querySelector('.btn-yes');
+    const noBtn = document.querySelector('.btn-no');
+    
+    if (question.is_resolved) {
+        yesBtn.disabled = true;
+        noBtn.disabled = true;
+        document.getElementById('feedback').innerText = 'Вы уже ответили на этот вопрос';
+        document.getElementById('feedback').className = 'feedback info';
+    } else {
+        yesBtn.disabled = false;
+        noBtn.disabled = false;
+    }
 }
 
 async function submitAnswer(answer) {
@@ -73,7 +88,8 @@ async function submitAnswer(answer) {
         const data = await response.json();
         
         const feedback = document.getElementById('feedback');
-        feedback.innerText = data.message + ` (+${data.points} баллов)`;
+        const pointsText = data.points > 0 ? ` (+${data.points} баллов)` : '';
+        feedback.innerText = data.message + pointsText;
         feedback.className = `feedback ${data.correct ? 'correct' : 'incorrect'}`;
         
         if (data.correct) {
@@ -82,11 +98,6 @@ async function submitAnswer(answer) {
 
             if (data.user_points !== undefined) {
                 updateUserPoints(data.user_points);
-            }
-
-            if (data.category_points !== undefined) {
-                document.getElementById('category-score').innerText = 
-                    `В категории: ${data.category_points}`;
             }
         }
         
@@ -150,20 +161,27 @@ async function finishCategory() {
     }
 }
 
-function updateUserPoints(newPoints) {
-    const pointsElement = document.getElementById('user-points');
-    if (pointsElement) {
-        const oldPoints = parseInt(pointsElement.innerText);
-        pointsElement.innerText = newPoints;
+async function restartCategory() {
+    if (!confirm('Начать категорию заново? Прогресс будет сброшен.')) return;
+    
+    try {
+        const response = await fetch(`/api/category/${encodeURIComponent(categoryName)}/start`, {
+            method: 'POST'
+        });
         
-        if (newPoints > oldPoints) {
-            pointsElement.style.color = '#4caf50';
-            pointsElement.style.transform = 'scale(1.3)';
-            setTimeout(() => {
-                pointsElement.style.color = '';
-                pointsElement.style.transform = '';
-            }, 500);
+        const data = await response.json();
+        
+        if (data.error) {
+            alert(data.error);
+            return;
         }
+        
+        alert('Категория начата заново!');
+        window.location.reload();
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка сброса категории');
     }
 }
 
