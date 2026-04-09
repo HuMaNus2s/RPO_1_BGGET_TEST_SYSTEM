@@ -3,3 +3,6 @@
 /logs
 /tests/__pycache__
 /web/__pycache__
+/node_modules
+/node_modules/.bin
+/node_modules
