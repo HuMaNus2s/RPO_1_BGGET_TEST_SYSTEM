@@ -18,13 +18,7 @@ def setup_logger():
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
 
-# Path('logs').mkdir(exist_ok=True) - Отключено для Vercel
-# file_handler = logging.FileHandler('logs/app.log', encoding='utf-8') - Отключено для Vercel
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-
     return logger
 
 logger = setup_logger()
