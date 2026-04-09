@@ -1,0 +1,16 @@
+{
+  "name": "rpo-1-bgget-test-system",
+  "version": "1.0.0",
+  "description": "Flask application for test system",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "echo 'No build step needed'",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5"
+  }
+}
