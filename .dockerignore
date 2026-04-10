@@ -1,9 +1,0 @@
-.git
-.gitignore
-README.md
-*.pyc
-__pycache__/
-*.log
-logs/
-tests/
-*.md
