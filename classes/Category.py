@@ -149,7 +149,7 @@ class Category:
         data = self.toJSON
         try:
             filename = self.name_.replace(' ', '_')
-            with open(f'{DATA_PATH}{filename}.json', 'w', encoding='utf-8') as f:
+            with open(f'{DATA_PATH}/{filename}.json', 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
             return True
         except Exception as e:
