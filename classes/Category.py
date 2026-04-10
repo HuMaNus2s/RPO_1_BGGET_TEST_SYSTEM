@@ -104,7 +104,7 @@ class Category:
     def loadFromFile(self): 
         try:
             filename = self.name_.replace(' ', '_')
-            with open(f'{DATA_PATH}{filename}.json', 'r', encoding='utf-8') as f:
+            with open(f'{DATA_PATH}/{filename}.json', 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
             questions = []
